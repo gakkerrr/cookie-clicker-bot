@@ -1,8 +1,57 @@
+import re
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
+def convert_to_number(s):
+    # Удаляем лишние пробелы и приводим к нижнему регистру
+    s = s.strip().lower()
+
+    # Разделяем строку на числовую часть и суффикс
+    num_part = ""
+    suffix = ""
+    for char in s:
+        if char.isdigit() or char == '.':
+            num_part += char
+        else:
+            suffix += char
+
+    # Преобразуем числовую часть в float
+    num = float(num_part)
+
+    if "quadrillion" in suffix:
+        multiplier = 1_000_000_000_000_000
+    elif "trillion" in suffix:
+        multiplier = 1_000_000_000_000
+    elif "billion" in suffix:
+        multiplier = 1_000_000_000
+    elif "million" in suffix:
+        multiplier = 1_000_000
+    elif "thousand" in suffix:
+        multiplier = 1_000
+    else:
+        multiplier = 1  # Если суффикс не распознан, считаем как есть
+
+    # Умножаем и возвращаем целое число
+    return int(num * multiplier)
+
+def convert_price_to_int(price_str):
+    # Удаляем лишние пробелы и приводим к нижнему регистру
+    price_str = price_str.strip().lower()
+
+    # Проверяем, есть ли запятые (формат "ddd,ddd")
+    if "," in price_str:
+        # Удаляем запятые и преобразуем в целое число
+        return int(price_str.replace(",", ""))
+
+    # Проверяем, есть ли суффикс (например, "million", "thousand")
+    if any(word in price_str for word in ["million", "thousand", "billion", "trillion"]):
+        return convert_to_number(price_str)  # Используем функцию из предыдущего ответа
+
+    # Если это просто число без запятых и суффиксов
+    return int(price_str)
 
 cookie_page = "https://orteil.dashnet.org/cookieclicker/"
 
@@ -22,16 +71,30 @@ bigCookie = driver.find_element(By.ID, cookie_id)
 
 while 1:
     bigCookie.click()
-    cookies_count = driver.find_element(By.ID, "cookies").text.split(" ")[0]
+    cookies_text = driver.find_element(By.ID, "cookies").text
+
+    # Используем регулярное выражение для извлечения числа
+    cookies_count = re.search(r"[\d,]+", cookies_text).group()
+
+    # Удаляем запятые и преобразуем в целое число
     cookies_count = int(cookies_count.replace(",", ""))
 
-    for i in range(4):
+    for i in range(10):
         product_price = driver.find_element(By.ID, "productPrice" + str(i)).text
 
         if product_price == "":
             continue
 
-        product_price = int(product_price.replace(",",""))
+        
+        product_price = convert_price_to_int(product_price)
+
+        # убирает возможность купить курсор если он стоит больше 6000
+        if product_price > 6000 and i == 0:
+            continue
+
+        # убирает возможность купить бабущку если она стоит больше 20000
+        if product_price > 20000 and i == 1:
+            continue
 
         if cookies_count > product_price:
             product = driver.find_element(By.ID, "product" + str(i))
@@ -52,3 +115,4 @@ while 1:
                 print(f"Ошибка при клике на улучшение: {e}")
     except Exception as e:
         print(f"Ошибка при поиске улучшений: {e}")
+
