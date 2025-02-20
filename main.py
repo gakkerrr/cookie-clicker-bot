@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+# преобразует сложную строку типа "1.3 миллион" в "1300000"
 def convert_to_number(s):
     # Удаляем лишние пробелы и приводим к нижнему регистру
     s = s.strip().lower()
@@ -36,6 +37,7 @@ def convert_to_number(s):
     # Умножаем и возвращаем целое число
     return int(num * multiplier)
 
+# преобразует строку с элемента странциы в число
 def convert_price_to_int(price_str):
     # Удаляем лишние пробелы и приводим к нижнему регистру
     price_str = price_str.strip().lower()
