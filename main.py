@@ -24,15 +24,12 @@ while 1:
     bigCookie.click()
     cookies_count = driver.find_element(By.ID, "cookies").text.split(" ")[0]
     cookies_count = int(cookies_count.replace(",", ""))
-    # print(f'cookies_count = {cookies_count}')
 
     for i in range(4):
         product_price = driver.find_element(By.ID, "productPrice" + str(i)).text
 
         if product_price == "":
             continue
-
-        # print(f'product_price = {product_price}')
 
         product_price = int(product_price.replace(",",""))
 
