@@ -1,6 +1,5 @@
 import re
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -53,21 +52,21 @@ def convert_price_to_int(price_str):
     # Если это просто число без запятых и суффиксов
     return int(price_str)
 
-cookie_page = "https://orteil.dashnet.org/cookieclicker/"
+cookiePage = "https://orteil.dashnet.org/cookieclicker/"
 
 driver = webdriver.Chrome()
-driver.get(cookie_page)
+driver.get(cookiePage)
 
 element = WebDriverWait(driver, 10).until(
     EC.presence_of_element_located((By.XPATH, "//*[contains(text(), 'English')]"))
 )
 element.click()
 
-cookie_id = "bigCookie"
+cookieId = "bigCookie"
 WebDriverWait(driver, 10).until(
-    EC.presence_of_element_located((By.ID, cookie_id))
+    EC.presence_of_element_located((By.ID, cookieId))
 )
-bigCookie = driver.find_element(By.ID, cookie_id)
+bigCookie = driver.find_element(By.ID, cookieId)
 
 while 1:
     bigCookie.click()
@@ -85,7 +84,6 @@ while 1:
         if product_price == "":
             continue
 
-        
         product_price = convert_price_to_int(product_price)
 
         # убирает возможность купить курсор если он стоит больше 6000
@@ -102,6 +100,7 @@ while 1:
             break
     
     try:
+
         div = driver.find_element(By.ID, "upgrades")
         child_elements = div.find_elements(By.CSS_SELECTOR, "*")
 
@@ -115,4 +114,3 @@ while 1:
                 print(f"Ошибка при клике на улучшение: {e}")
     except Exception as e:
         print(f"Ошибка при поиске улучшений: {e}")
-
